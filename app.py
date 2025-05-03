@@ -1,4 +1,3 @@
-
 import os
 import json
 import random
@@ -6,6 +5,7 @@ import zipfile
 from io import BytesIO
 from PIL import Image
 from flask import Flask, request, render_template, send_file, redirect, url_for, session
+from werkzeug.utils import secure_filename
 
 from config import UPLOAD_FOLDER, AUGMENTED_FOLDER, SECRET_KEY
 from utils import allowed_file
@@ -20,6 +20,27 @@ app.config['AUGMENTED_FOLDER'] = AUGMENTED_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(AUGMENTED_FOLDER, exist_ok=True)
 
+def handle_zip_file(file, upload_folder):
+    # Save the uploaded zip file temporarily
+    zip_filename = secure_filename(file.filename)
+    zip_filepath = os.path.join(upload_folder, zip_filename)
+    file.save(zip_filepath)
+    
+    # Unzip the file
+    extracted_files = []
+    with zipfile.ZipFile(zip_filepath, 'r') as zip_ref:
+        # Extract all files to the upload folder
+        zip_ref.extractall(upload_folder)
+        extracted_files = zip_ref.namelist()
+    
+    # Remove the zip file after extracting
+    os.remove(zip_filepath)
+    
+    # Filter out image files (jpg, png, jpeg, gif)
+    image_files = [f for f in extracted_files if f.lower().endswith(('.png', '.jpg', '.jpeg', '.gif'))]
+    
+    return image_files
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -27,13 +48,21 @@ def index():
 @app.route('/upload', methods=['POST'])
 def upload():
     files = request.files.getlist('images')
+    uploaded_images = []
+
     for file in files:
         if file and allowed_file(file.filename):
-            from werkzeug.utils import secure_filename  # Import here or at the top
-            filename = secure_filename(file.filename)
-            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            file.save(filepath)
-    session['uploaded_files'] = os.listdir(app.config['UPLOAD_FOLDER'])
+            if file.filename.endswith('.zip'):
+                # Handle the zip file and extract images
+                uploaded_images.extend(handle_zip_file(file, app.config['UPLOAD_FOLDER']))
+            else:
+                # Handle a regular image file
+                filename = secure_filename(file.filename)
+                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                file.save(filepath)
+                uploaded_images.append(filename)
+
+    session['uploaded_files'] = uploaded_images
     return redirect(url_for('select_augmentations'))
 
 @app.route('/select_augmentations', methods=['GET', 'POST'])
