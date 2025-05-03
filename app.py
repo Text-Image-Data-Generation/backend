@@ -194,7 +194,7 @@ from PIL import Image
 import pandas as pd
 from flask import Flask, request, render_template, send_file, redirect, url_for, session
 from werkzeug.utils import secure_filename
-from ctgan import CTGANSynthesizer
+from ctgan import CTGAN
 
 from config import UPLOAD_FOLDER, AUGMENTED_FOLDER, SECRET_KEY
 from utils import allowed_file
