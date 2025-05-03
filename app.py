@@ -1,0 +1,153 @@
+
+import os
+import json
+import random
+import zipfile
+from io import BytesIO
+from PIL import Image
+from flask import Flask, request, render_template, send_file, redirect, url_for, session
+
+from config import UPLOAD_FOLDER, AUGMENTED_FOLDER, SECRET_KEY
+from utils import allowed_file
+from augmentations.pipeline import apply_augmentations
+
+app = Flask(__name__)
+app.secret_key = SECRET_KEY
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['AUGMENTED_FOLDER'] = AUGMENTED_FOLDER
+
+# Ensure the upload and augmented directories exist
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(AUGMENTED_FOLDER, exist_ok=True)
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/upload', methods=['POST'])
+def upload():
+    files = request.files.getlist('images')
+    for file in files:
+        if file and allowed_file(file.filename):
+            from werkzeug.utils import secure_filename  # Import here or at the top
+            filename = secure_filename(file.filename)
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(filepath)
+    session['uploaded_files'] = os.listdir(app.config['UPLOAD_FOLDER'])
+    return redirect(url_for('select_augmentations'))
+
+@app.route('/select_augmentations', methods=['GET', 'POST'])
+def select_augmentations():
+    if request.method == 'POST':
+        augmentations = request.form.to_dict()
+        session['augmentations'] = augmentations
+        uploaded_images = len(session.get('uploaded_files', []))
+        return render_template('set_augmentation_count.html',
+                               augmentations=augmentations,
+                               uploaded_images=uploaded_images)
+    return render_template('select_augmentations.html')
+
+@app.route('/set_augmentation_count', methods=['POST'])
+def set_augmentation_count():
+    images_to_augment = int(request.form.get('images_to_augment', 1))
+    session['images_to_augment'] = images_to_augment
+    return redirect(url_for('apply_augmentations_route'))
+
+@app.route('/apply_augmentations', methods=['GET', 'POST'])
+def apply_augmentations_route():
+    uploaded_files = session.get('uploaded_files', [])
+    augmentations = session.get('augmentations', {})
+    images_to_augment = session.get('images_to_augment', len(uploaded_files))
+    params = augmentations.copy()
+    
+    # Prepare techniques list (only those checked 'yes')
+    techniques = [key for key, value in augmentations.items() if value == 'yes']
+
+    # Create a new version folder for augmented images
+    existing_versions = [int(d.split('_')[-1])
+                         for d in os.listdir(app.config['AUGMENTED_FOLDER'])
+                         if d.startswith('version_')]
+    version_number = max(existing_versions + [0]) + 1
+    version_folder = os.path.join(app.config['AUGMENTED_FOLDER'], f"version_{version_number}")
+    os.makedirs(version_folder, exist_ok=True)
+
+    total_augmented_images = 0
+
+    # If requested images exceed available images, adjust count
+    if images_to_augment > len(uploaded_files):
+        images_to_augment = len(uploaded_files)
+
+    images_to_augment_list = random.sample(uploaded_files, images_to_augment)
+
+    # Apply augmentations for each selected image
+    for filename in images_to_augment_list:
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        image = Image.open(filepath)
+        augmented_image = apply_augmentations(image.copy(), techniques, params, uploaded_files)
+        file_root, file_ext = os.path.splitext(filename)
+        augmented_filename = f"{file_root}_aug{file_ext}"
+        augmented_filepath = os.path.join(version_folder, augmented_filename)
+        augmented_image.save(augmented_filepath)
+        total_augmented_images += 1
+
+    # Save metadata about this augmentation version
+    metadata = {
+        "total_augmented_images": total_augmented_images,
+        "images_to_augment": images_to_augment,
+        "selected_augmentations": techniques,
+        "augmentation_params": params
+    }
+    with open(os.path.join(version_folder, "metadata.json"), 'w') as f:
+        json.dump(metadata, f, indent=4)
+
+    # Clear session data and remove uploaded images
+    session.pop('uploaded_files', None)
+    session.pop('augmentations', None)
+    session.pop('images_to_augment', None)
+    for file in os.listdir(app.config['UPLOAD_FOLDER']):
+        os.remove(os.path.join(app.config['UPLOAD_FOLDER'], file))
+
+    return redirect(url_for('download'))
+
+@app.route('/download')
+def download():
+    versions = {}
+    for folder in os.listdir(app.config['AUGMENTED_FOLDER']):
+        if folder.startswith('version_'):
+            version_number = int(folder.split('_')[-1])
+            metadata_path = os.path.join(app.config['AUGMENTED_FOLDER'], folder, "metadata.json")
+            if os.path.exists(metadata_path):
+                with open(metadata_path, 'r') as f:
+                    metadata = json.load(f)
+            else:
+                metadata = {"total_augmented_images": 0,
+                            "selected_augmentations": [],
+                            "augmentation_params": {}}
+            versions[version_number] = metadata
+    sorted_versions = dict(sorted(versions.items(), reverse=True))
+    return render_template('download.html', versions=sorted_versions)
+
+@app.route('/download_zip/<version>')
+def download_zip(version):
+    if not version.startswith("version_"):
+        version = f"version_{version}"
+    version_folder = os.path.join(app.config['AUGMENTED_FOLDER'], version)
+    zip_filename = f"augmented_images_{version.split('_')[-1]}.zip"
+
+    memory_file = BytesIO()
+    with zipfile.ZipFile(memory_file, 'w', zipfile.ZIP_DEFLATED) as zipf:
+        for root, _, files in os.walk(version_folder):
+            for file in files:
+                if file.endswith(('.png', '.jpg', '.jpeg', '.gif')):
+                    file_path = os.path.join(root, file)
+                    zipf.write(file_path, os.path.relpath(file_path, version_folder))
+        metadata_path = os.path.join(version_folder, "metadata.json")
+        if os.path.exists(metadata_path):
+            zipf.write(metadata_path, os.path.relpath(metadata_path, version_folder))
+        else:
+            return f"Metadata file not found in {version_folder}", 404
+    memory_file.seek(0)
+    return send_file(memory_file, download_name=zip_filename, as_attachment=True)
+
+if __name__ == '__main__':
+    app.run(debug=True)
