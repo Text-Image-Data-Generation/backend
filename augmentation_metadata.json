@@ -1,5 +1,6 @@
 {
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     "virts": {
         "techniques": [
             "scale"
@@ -26,6 +27,8 @@
         "augmented_zip": "virts_augmented_run_2.zip",
         "last_augmented_run_folder": "augmented\\virts\\run_2"
 =======
+=======
+>>>>>>> Stashed changes
     "test1": {
         "augmentation_runs": [
             {
@@ -119,6 +122,9 @@
                 "output_folder_name": "run_0"
             }
         ]
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
     }
 }
