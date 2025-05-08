@@ -155,7 +155,11 @@
 import os
 import zipfile
 import json
-from flask import Flask, request, jsonify, send_from_directory , send_file
+import random
+import numpy as np
+import cv2 # For motion blur
+
+from flask import Flask, request, jsonify, send_from_directory, current_app
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 from PIL import Image, ImageOps, ImageEnhance, ImageChops
@@ -612,15 +616,6 @@ def serve_augmented_image(dataset, run_folder, filename):
     # Path: augmented/dataset_name/run_folder/filename
     return send_from_directory(os.path.join(app.config['AUGMENTED_FOLDER'], secure_filename(dataset), secure_filename(run_folder)), secure_filename(filename))
 
-
-
-@app.route('/api/download-csv/<filename>', methods=['GET'])
-def download_csv(filename):
-    file_path = os.path.join(RESULT_DIR, filename)
-    if os.path.exists(file_path):
-        return send_file(file_path, as_attachment=True)
-    else:
-        return jsonify({"error": "File not found"}), 404
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001, debug=True)
