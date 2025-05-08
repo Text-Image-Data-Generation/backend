@@ -1,3 +1,4 @@
+# app.py
 import os
 import zipfile
 import json
@@ -16,7 +17,6 @@ METADATA_FILE = 'augmentation_metadata.json'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['AUGMENTED_FOLDER'] = AUGMENTED_FOLDER
 
-# Ensure necessary folders exist
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(AUGMENTED_FOLDER, exist_ok=True)
 
@@ -27,13 +27,13 @@ if os.path.exists(METADATA_FILE):
 else:
     augmentation_metadata = {}
 
-# Image Augmentation Functions
+# Augmentation functions
 def rotate_image(image, angle=90):
     return image.rotate(angle, expand=True)
 
 def scale_image(image, scale=1.5):
-    new_size = (int(image.width * scale), int(image.height * scale))
-    return image.resize(new_size, Image.LANCZOS)
+    width, height = image.size
+    return image.resize((int(width * scale), int(height * scale)))
 
 def flip_horizontal(image):
     return ImageOps.mirror(image)
@@ -69,7 +69,6 @@ def upload_files():
         filepath = os.path.join(dataset_folder, filename)
         file.save(filepath)
 
-        # If zip file, extract and delete
         if filename.endswith('.zip'):
             with zipfile.ZipFile(filepath, 'r') as zip_ref:
                 zip_ref.extractall(dataset_folder)
@@ -87,7 +86,7 @@ def list_datasets():
             metadata = augmentation_metadata.get(folder, {})
             datasets.append({
                 'name': folder,
-                'count': len([f for f in files if f.lower().endswith(('.jpg', '.jpeg', '.png'))]),
+                'count': len([f for f in files if f.lower().endswith(('.png', '.jpg', '.jpeg'))]),
                 'files': files,
                 'augmentations': metadata.get("augmentations", []),
                 'augmented_zip': metadata.get("augmented_zip")
@@ -120,12 +119,11 @@ def augment_dataset():
             if file.endswith(('.png', '.jpg', '.jpeg')):
                 zipf.write(os.path.join(target_folder, file), file)
 
-    # Update metadata
+    # Save metadata
     augmentation_metadata[dataset_name] = {
         "augmentations": augmentations,
         "augmented_zip": zip_filename
     }
-
     with open(METADATA_FILE, 'w') as f:
         json.dump(augmentation_metadata, f)
 
