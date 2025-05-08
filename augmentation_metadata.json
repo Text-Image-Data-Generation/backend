@@ -1,54 +1,25 @@
 {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-    "virts": {
-        "techniques": [
-            "scale"
-        ],
-        "parameters": {
-            "rotation_angle": 90,
-            "scaling_factor": 1.2,
-            "translation_x": 0,
-            "translation_y": 0,
-            "crop_left": 0,
-            "crop_top": 0,
-            "crop_right": 100,
-            "crop_bottom": 100,
-            "padding_size": 0,
-            "brightness_factor": 1,
-            "contrast_factor": 1,
-            "saturation_factor": 1,
-            "gaussian_variance": 0.01,
-            "sap_amount": 0.005,
-            "motion_blur_size": 9,
-            "cutout_size": 50,
-            "mixup_alpha": 0.2
-        },
-        "augmented_zip": "virts_augmented_run_2.zip",
-        "last_augmented_run_folder": "augmented\\virts\\run_2"
-=======
-=======
->>>>>>> Stashed changes
     "test1": {
         "augmentation_runs": [
             {
                 "run_id": "run_0",
-                "timestamp": "2025-05-09_00-31-25",
+                "timestamp": "2025-05-09_01-10-10",
                 "techniques": [
-                    "scale",
                     "rotate",
-                    "brightness"
+                    "scale",
+                    "flip_horizontal"
                 ],
                 "parameters": {
-                    "rotation_angle": 88,
-                    "scaling_factor": 1.5,
-                    "translation_x": 0,
-                    "translation_y": 0,
-                    "crop_left": 0,
-                    "crop_top": 0,
-                    "crop_right": 100,
-                    "crop_bottom": 100,
+                    "rotation_angle": 45,
+                    "scaling_factor": 1.1,
+                    "translation_x": 10,
+                    "translation_y": 10,
+                    "crop_left": 10,
+                    "crop_top": 10,
+                    "crop_right": 90,
+                    "crop_bottom": 90,
                     "padding_size": 0,
+                    "padding_color": "#000000",
                     "brightness_factor": 1,
                     "contrast_factor": 1,
                     "saturation_factor": 1,
@@ -60,71 +31,7 @@
                 },
                 "augmented_zip": "test1_augmented_run_0.zip",
                 "output_folder_name": "run_0"
-            },
-            {
-                "run_id": "run_1",
-                "timestamp": "2025-05-09_00-32-30",
-                "techniques": [
-                    "flip_horizontal"
-                ],
-                "parameters": {
-                    "rotation_angle": 90,
-                    "scaling_factor": 1.2,
-                    "translation_x": 0,
-                    "translation_y": 0,
-                    "crop_left": 0,
-                    "crop_top": 0,
-                    "crop_right": 100,
-                    "crop_bottom": 100,
-                    "padding_size": 0,
-                    "brightness_factor": 1,
-                    "contrast_factor": 1,
-                    "saturation_factor": 1,
-                    "gaussian_variance": 0.01,
-                    "sap_amount": 0.005,
-                    "motion_blur_size": 9,
-                    "cutout_size": 50,
-                    "mixup_alpha": 0.2
-                },
-                "augmented_zip": "test1_augmented_run_1.zip",
-                "output_folder_name": "run_1"
             }
         ]
-    },
-    "test2": {
-        "augmentation_runs": [
-            {
-                "run_id": "run_0",
-                "timestamp": "2025-05-09_00-32-22",
-                "techniques": [
-                    "rotate"
-                ],
-                "parameters": {
-                    "rotation_angle": 50,
-                    "scaling_factor": 1.5,
-                    "translation_x": 0,
-                    "translation_y": 0,
-                    "crop_left": 0,
-                    "crop_top": 0,
-                    "crop_right": 100,
-                    "crop_bottom": 100,
-                    "padding_size": 0,
-                    "brightness_factor": 1,
-                    "contrast_factor": 1,
-                    "saturation_factor": 1,
-                    "gaussian_variance": 0.01,
-                    "sap_amount": 0.005,
-                    "motion_blur_size": 9,
-                    "cutout_size": 50,
-                    "mixup_alpha": 0.2
-                },
-                "augmented_zip": "test2_augmented_run_0.zip",
-                "output_folder_name": "run_0"
-            }
-        ]
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
     }
 }
