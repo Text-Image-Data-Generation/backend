@@ -1,1 +1,1 @@
-{"test1": {"augmentations": ["flip_horizontal"], "augmented_zip": "test1_augmented.zip"}}
+{"test1": {"augmentations": ["flip_horizontal"], "augmented_zip": "test1_augmented.zip"}, "test2": {"augmentations": ["flip_vertical", "flip_horizontal"], "augmented_zip": "test2_augmented.zip"}}
