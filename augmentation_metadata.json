@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 {
     "test1": {
         "augmentations": [
@@ -71,3 +72,6 @@
         "last_augmented_run_folder": "augmented/test3/run_0"
     }
 }
+=======
+{"test1": {"augmentations": ["flip_horizontal"], "augmented_zip": "test1_augmented.zip"}, "test2": {"augmentations": ["flip_vertical", "flip_horizontal"], "augmented_zip": "test2_augmented.zip"}, "hi": {"augmentations": ["flip_horizontal", "scale"], "augmented_zip": "hi_augmented.zip"}}
+>>>>>>> Stashed changes
