@@ -159,10 +159,21 @@ import random
 import numpy as np
 import cv2 # For motion blur
 
-from flask import Flask, request, jsonify, send_from_directory, current_app
+from flask import Flask, request, jsonify, send_from_directory,send_file
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 from PIL import Image, ImageOps, ImageEnhance, ImageChops
+
+
+from gradio_client import Client, handle_file
+from dotenv import load_dotenv
+import shutil
+
+# Load environment variables
+load_dotenv()
+
+GRADIO_URL = os.getenv("GRADIO_URL")
+
 
 app = Flask(__name__)
 CORS(app)
@@ -179,8 +190,11 @@ os.makedirs(AUGMENTED_FOLDER, exist_ok=True)
 
 # Load augmentation metadata
 if os.path.exists(METADATA_FILE):
-    with open(METADATA_FILE, 'r') as f:
-        augmentation_metadata = json.load(f)
+    if os.path.getsize(METADATA_FILE) > 0:  # Check if the file is not empty
+        with open(METADATA_FILE, 'r') as f:
+            augmentation_metadata = json.load(f)
+    else:
+        augmentation_metadata = {}  # Set it to an empty dictionary if the file is empty
 else:
     augmentation_metadata = {}
 
@@ -615,6 +629,59 @@ def serve_augmented_zip(dataset, zipfilename):
 def serve_augmented_image(dataset, run_folder, filename):
     # Path: augmented/dataset_name/run_folder/filename
     return send_from_directory(os.path.join(app.config['AUGMENTED_FOLDER'], secure_filename(dataset), secure_filename(run_folder)), secure_filename(filename))
+
+
+RESULT_DIR = "csv_results"
+csv_DIR = "csv_uploads"
+
+# Ensure results folder exists
+os.makedirs(RESULT_DIR, exist_ok=True)
+os.makedirs(csv_DIR, exist_ok=True)
+
+
+@app.route('/download-csv/<filename>', methods=['GET'])
+def download_file(filename):
+    filepath = os.path.join(RESULT_DIR, filename)
+    return send_file(filepath, as_attachment=True)
+
+
+
+@app.route('/generate-synthetic', methods=['POST'])
+def generate_synthetic():
+    file = request.files.get('file')
+    epochs = int(request.form.get('epochs', 5))
+    num_samples = int(request.form.get('samples', 100))
+
+    if not file:
+        return jsonify({"error": "No file uploaded"}), 400
+
+    # Save temp uploaded file
+    temp_input_path = os.path.join(csv_DIR, file.filename)
+    file.save(temp_input_path)
+
+    try:
+        # Call CTGAN via Gradio client
+        client = Client(GRADIO_URL)
+        result = client.predict(
+            handle_file(temp_input_path),
+            epochs,
+            num_samples
+        )
+
+        # Save to results directory
+        output_filename = file.filename.replace(".csv", "_gen.csv")
+        output_path = os.path.join(RESULT_DIR, output_filename)
+        shutil.copy(result, output_path)
+
+        return jsonify({
+            "output_file": output_filename
+        })
+
+    except Exception as e:
+        return jsonify({"error":str(e)}),500
+
+
+
 
 
 if __name__ == '__main__':

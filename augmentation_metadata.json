@@ -1,27 +1,10 @@
-<<<<<<< Updated upstream
 {
-    "test1": {
-        "augmentations": [
-            "flip_horizontal"
-        ],
-        "augmented_zip": "test1_augmented.zip"
-    },
-    "test2": {
-        "augmentations": [
-            "flip_vertical",
-            "flip_horizontal"
-        ],
-        "augmented_zip": "test2_augmented.zip"
-    },
-    "shashi": {
+    "virts": {
         "techniques": [
-            "cutout",
-            "flip_vertical",
-            "rotate",
-            "gaussian_noise"
+            "scale"
         ],
         "parameters": {
-            "rotation_angle": 20,
+            "rotation_angle": 90,
             "scaling_factor": 1.2,
             "translation_x": 0,
             "translation_y": 0,
@@ -39,39 +22,7 @@
             "cutout_size": 50,
             "mixup_alpha": 0.2
         },
-        "augmented_zip": "shashi_augmented_run_0.zip",
-        "last_augmented_run_folder": "augmented/shashi/run_0"
-    },
-    "test3": {
-        "techniques": [
-            "cutout",
-            "flip_vertical",
-            "rotate",
-            "gaussian_noise"
-        ],
-        "parameters": {
-            "rotation_angle": 20,
-            "scaling_factor": 1.2,
-            "translation_x": 0,
-            "translation_y": 0,
-            "crop_left": 0,
-            "crop_top": 0,
-            "crop_right": 100,
-            "crop_bottom": 100,
-            "padding_size": 0,
-            "brightness_factor": 1,
-            "contrast_factor": 1,
-            "saturation_factor": 1,
-            "gaussian_variance": 0.01,
-            "sap_amount": 0.005,
-            "motion_blur_size": 9,
-            "cutout_size": 50,
-            "mixup_alpha": 0.2
-        },
-        "augmented_zip": "test3_augmented_run_0.zip",
-        "last_augmented_run_folder": "augmented/test3/run_0"
+        "augmented_zip": "virts_augmented_run_2.zip",
+        "last_augmented_run_folder": "augmented\\virts\\run_2"
     }
 }
-=======
-{"test1": {"augmentations": ["flip_horizontal"], "augmented_zip": "test1_augmented.zip"}, "test2": {"augmentations": ["flip_vertical", "flip_horizontal"], "augmented_zip": "test2_augmented.zip"}, "hi": {"augmentations": ["flip_horizontal", "scale"], "augmented_zip": "hi_augmented.zip"}}
->>>>>>> Stashed changes
