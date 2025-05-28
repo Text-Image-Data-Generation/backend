@@ -1,1 +1,16 @@
-[]
+[
+  {
+    "timestamp": "20250528160439",
+    "filename": "images_0_24_20250528160439.zip",
+    "seed_start": 0,
+    "seed_end": 24,
+    "truncation": 0.7
+  },
+  {
+    "timestamp": "20250528160630",
+    "filename": "images_0_5_20250528160630.zip",
+    "seed_start": 0,
+    "seed_end": 5,
+    "truncation": 0.7
+  }
+]
