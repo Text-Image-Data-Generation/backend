@@ -1,0 +1,9 @@
+[
+    {
+        "filename": "Shill_Bidding_Dataset_gen.csvsynthetic_data_gen_20250528115152.csv",
+        "original_file": "Shill_Bidding_Dataset_gen.csvsynthetic_data.csv",
+        "samples": 20,
+        "epochs": 5,
+        "timestamp": "20250528115152"
+    }
+]

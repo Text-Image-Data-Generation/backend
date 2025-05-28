@@ -1,23 +1,23 @@
 {
-    "test1": {
+    "helper": {
         "augmentation_runs": [
             {
                 "run_id": "run_0",
-                "timestamp": "2025-05-09_01-10-10",
+                "timestamp": "2025-05-28_11-28-23",
                 "techniques": [
                     "rotate",
-                    "scale",
-                    "flip_horizontal"
+                    "flip_horizontal",
+                    "gaussian_noise"
                 ],
                 "parameters": {
-                    "rotation_angle": 45,
-                    "scaling_factor": 1.1,
+                    "rotation_angle": 90,
+                    "scaling_factor": 1.2,
                     "translation_x": 10,
                     "translation_y": 10,
                     "crop_left": 10,
                     "crop_top": 10,
-                    "crop_right": 90,
-                    "crop_bottom": 90,
+                    "crop_right": 1270,
+                    "crop_bottom": 710,
                     "padding_size": 0,
                     "padding_color": "#000000",
                     "brightness_factor": 1,
@@ -29,7 +29,7 @@
                     "cutout_size": 50,
                     "mixup_alpha": 0.2
                 },
-                "augmented_zip": "test1_augmented_run_0.zip",
+                "augmented_zip": "helper_augmented_run_0.zip",
                 "output_folder_name": "run_0"
             }
         ]

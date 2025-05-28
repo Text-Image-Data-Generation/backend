@@ -1,0 +1,8 @@
+{
+    "sample": {
+        "dataset": "sample",
+        "original_count": 1,
+        "enhanced_count": 1,
+        "zip": "sample_enhanced.zip"
+    }
+}
